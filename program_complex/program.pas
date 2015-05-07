@@ -81,6 +81,7 @@ type
         procedure afis_drum_dj(x :integer); {afisam drumurile minime de la un nod anume la alte noduri }
         procedure drum_min(a, b :integer); { afisam drumul minim dintre nodul <a> si nodul <b> }
         procedure drum_max(a, b :integer); { afisam drumul maxim dintre nodul <a> si nodul <b> }
+        procedure bkt(a, b :integer); { calculam drumul maxim de la a, la b }
     end;
 
 var gf :graf;
@@ -832,47 +833,106 @@ writeln;
 end;
 
 procedure graf.drum_max(a, b :integer);
-var i, k :integer;
-    s :string;
-    aux :drum;
 begin
-str(a, s);
-if cauta_roy = 'max' then
+writeln(' Cautam drumul maxim folosind algortimul metodei brute ');
+bkt(a, b);
+writeln;
+end;
+
+procedure graf.bkt(a, b :integer);
+var i, nr :integer;
+    sol, sti :vector_int;
+    max :real;
+    procedure initi_s(k :integer);
     begin
-    writeln('Drumul maxim a fost folosit deja folosind algoritmul roy-floyd');
-    writeln('Drumul maxim este :');
-    if mat_costuri_roy[a, b] < p_inf then
-        for i := 1 to mat_drum[a, b].n do
-            write(mat_drum[a, b].v[i], ' ')
+    sti[k] := 0;
+    end;
+
+    function solutie(k :integer):boolean;
+    begin
+    solutie := sti[k] = b;
+    end;
+
+    function exista(k :integer):boolean;
+    begin
+    exista := sti[k] < n;
+    end;
+
+    function continua(k :integer):boolean;
+    var i, j :integer;
+    begin
+    if sti[1] <> a then
+        continua := false
     else
-        writeln(' Din pacate nu se poate ajunge de la ', a, ' la ', b);
+        begin
+        for i := 2 to k do
+            if not mat_adiacenta[sti[i-1], sti[i]] then
+                begin
+                continua := false;
+                break;
+                end;
+
+        for i := 1 to k-1 do
+            for j := i+1 to k do
+                if sti[i] = sti[j] then
+                    begin
+                    continua := false;
+                    break;
+                    end;
+        end;
+    end;
+
+    procedure optimizare(k :integer);
+    var i :integer;
+        cost :real;
+    begin
+    cost := 0;
+    for i := 2 to k do
+        cost := cost + mat_costuri[i-1, i];
+
+    if max < cost then
+        begin
+        for i := 1 to k do
+            sol[i] := sti[i];
+        nr := k;
+        max := cost;
+        end;
+    end;
+
+    procedure back(k :integer);
+    begin
+    initi_s(k);
+    while exista(k) do
+        begin
+        inc(sti[k]);
+
+        if continua(k) then
+            if solutie(k) then
+                optimizare(k)
+            else
+                back(k+1);
+        end;
+    end;
+begin
+max := 0;
+nr := 0;
+
+{ cautam solutiile  }
+back(1);
+
+writeln('Incepem cautarea drumului maxim de la ', a, ' la ', b);
+writeln;
+if max > 0 then
+    begin
+    writeln('Drumul de la ', a, ' la ', b, ' are costul :', max:4:2);
+    writeln('Drumul este compus din :');
+    for i := 1 to nr do
+        write(sol[i], ' ');
     writeln;
     end
 else
-    begin
-    writeln('Drumul maxim nu a fost deja calculat asa ca il vom calcula folosind aglgoritmul roy-floyd ');
-
-    roy_floyd_max;
-
-    writeln;
-    writeln('Am terminat de calculat drumul roy-floyd!');
-    writeln;
-
-    if (mat_costuri_roy[a, b] <> m_inf) AND (mat_costuri_roy[a, b] <> p_inf) then
-        begin
-        writeln('Intre nodurile ', a, ' si  ', b, ' drumul are costul : ', mat_costuri_roy[a, b]:4:2);
-        writeln('Drumul este :');
-        aux := mat_drum[a, b];
-        write(' ':5);
-        for k := 1 to aux.n do
-            write(aux.v[k], ' ');
-        writeln;
-        writeln;
-        end
-    else
-        writeln('Intre nodurile ', a, ' si ', b, ' nu exista drum !');
-    end;
-writeln;
+    writeln('Nu exista drum de la ', a, ' la ', b, ' !');
+    
 end;
 
 {===================================================================================}
@@ -1126,6 +1186,11 @@ function check_blank(inp :string):boolean;
 begin
 check_blank := elm_space(inp) = '';
 end;
+
+function check_bkt(inp :string):boolean;
+begin
+check_bkt := elm_space(inp) = 'bkt';
+end;
 {===================================================================================}
 { Metode de afisare }
 procedure help(s :string);
@@ -1156,6 +1221,7 @@ case b of
         writeln('   drum_max(arg, arg)');
         writeln('   drum_min(arg, arg)');
         writeln('   credit');
+        writeln('   bkt');
         writeln('');
         writeln('   Pentru mai multe informatii legate de fiecare comanda puteti accesa !');
         writeln('   <help(commanda)> .');
@@ -1273,7 +1339,7 @@ case b of
         writeln('   drum_max(arg, arg)'); 
         writeln('   Cu ajutorl acestei comenzi vom afisa drumul maxim de la nodul primit ca prim argument ');
         writeln('   pana la nodul primit ca al doilea argument. Programul va verifica daca cautarea nu a fost deja ');
-        writeln('   facuta. Daca nu a fost facuta, va cauta drumul folosit algoritmul roy-floyd.');
+        writeln('   facuta. Daca nu a fost facuta, va cauta drumul folosit algoritmul bkt ( metoda bruta).');
         writeln('   Exemplu de utilizare:');
         writeln('       drum_max(1, 2);');
         writeln('       drum_max(3, 6);');
@@ -1286,6 +1352,13 @@ case b of
         writeln('   Exemplu de utilizare:');
         writeln('       drum_min(1, 2);');
         writeln('       drum_min(3, 6);');
+        end;
+    'bkt':begin
+        writeln('   bkt');
+        writeln('   Cu ajutorul acestei comenzi afisam drumurile maxime de la orce nod spre restul nodurilor ');
+        writeln('   folosind metoda bruta ( backtraking ).');
+        writeln('   Exemplu de utilizare:');
+        writeln('       bkt');
         end;
     'credit':begin
         writeln('   credit');
@@ -1649,6 +1722,30 @@ writeln('');
 writeln('');
 end;
 
+procedure bkt(inp :string);
+var i, j :integer;
+begin
+if gf.citit then
+    begin
+    writeln('Cautam drumurile maxime folosind forta bruta ');
+    writeln;
+    for i := 1 to gf.n do
+        for j := 1 to gf.n do
+            if i <> j then
+                begin
+                writeln(' Cautam drumul intre ', i, ' si ', j, ' :');
+                gf.bkt(i, j);
+                end;
+    end
+else
+    begin
+    writeln(' ERROARE:');
+    writeln(' Nu avem nici un graf citit, cosultati comanda <help> ');
+    writeln(' pentru mai multe informatii .');
+    end;
+end;
+
+
 {===================================================================================}
 { Metode de managereriere }
 procedure start;
@@ -1794,6 +1891,13 @@ while not check_close(inp) do
     { daca s-a introdus o linie goala }
     if check_blank(inp) then
         begin
+        ok := true;
+        end;
+
+    { verificam daca utilizatorul doreste sa cautam drumurime maxime de la oricare doua noduri ale grafului }
+    if check_bkt(inp) then
+        begin
+        bkt(inp);
         ok := true;
         end;
 
