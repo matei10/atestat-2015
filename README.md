@@ -2,7 +2,7 @@
 
 Acest repo contime atestatul meu la informatica in pascal pema `Drumuri minime si maxime in grafuri orientate`
 
-## Contine diferiti algoritmi pentru determinarea drumurilor minime si maxime si algoritmi auxiliari pentru citirea unei matrici ce adiacenta sau liste de noduri, pe langa astea sunt si algoritmi pentru parcurgerea in latime sau in adancime a grafurilor orientate
+##### Contine diferiti algoritmi pentru determinarea drumurilor minime si maxime si algoritmi auxiliari pentru citirea unei matrici ce adiacenta sau liste de noduri, pe langa astea sunt si algoritmi pentru parcurgerea in latime sau in adancime a grafurilor orientate
   
   
 Exista varianta compilata pentru linux `Free Pascal Compiler version 2.6.2-8 [2014/01/22] for x86_64 Copyright (c) 1993-2012 by Florian Klaempfl and others Target OS: Linux for x86-64` cat si unele executabile pentru windows 7, dar codul sursa poate fi recompilat, aceste variante compilate sunt incluse din simplul motiv ca nu am dorit recompilarea lor la momentul prezentari
@@ -11,7 +11,7 @@ Exista varianta compilata pentru linux `Free Pascal Compiler version 2.6.2-8 [20
     Unele programe au probleme cu compilarea pe windows !
 
 
-#### The MIT License (MIT)
+## The MIT License (MIT)
 
 Copyright (c) [2015] [Micu Matei-Marius]
 
