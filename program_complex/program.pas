@@ -1704,7 +1704,7 @@ writeln('');
 writeln(' Autor : Micu Matei-Marius');
 writeln(' Email : matei10@yahoo.com');
 writeln(' Gmail : micumatei@gmail.com');
-writeln(' GitHub : matei10');
+writeln(' GitHub : micumatei');
 writeln('');
 writeln(' Licenta : MIT ');
 writeln('   O copie a licente MIT ar trebui sa fie distribuita o data cu programul ');
